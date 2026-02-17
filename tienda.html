@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: system-ui, sans-serif; 
-            max-width: 1000px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px;
             background: #0f172a;
@@ -36,17 +36,20 @@
         }
         
         button {
-            width: 100%;
-            padding: 12px;
+            padding: 12px 24px;
             background: #0ea5e9;
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
         }
         button:hover { background: #0284c7; }
+        button:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
         
         #appPanel { display: none; }
         
@@ -57,6 +60,8 @@
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .userBadge {
@@ -66,8 +71,8 @@
             font-size: 14px;
         }
         
-        h1 { color: #38bdf8; }
-        h2 { color: #7dd3fc; margin: 20px 0 15px; }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        h2 { color: #7dd3fc; margin: 30px 0 15px; }
         
         .productos-grid {
             display: grid;
@@ -81,10 +86,15 @@
             border-radius: 10px;
             border: 1px solid #334155;
             transition: transform 0.2s;
+            position: relative;
         }
         .producto:hover {
             transform: translateY(-5px);
             border-color: #0ea5e9;
+        }
+        .producto.agotado {
+            opacity: 0.6;
+            border-color: #ef4444;
         }
         
         .producto h3 { 
@@ -94,36 +104,132 @@
         }
         .producto .precio { 
             color: #10b981; 
-            font-size: 24px; 
+            font-size: 28px; 
             font-weight: bold;
             margin: 10px 0;
         }
         .producto .stock { 
             color: #94a3b8; 
             font-size: 14px;
+            margin: 5px 0;
+        }
+        .producto .stock.bajo {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .producto .stock.agotado {
+            color: #ef4444;
         }
         
-        .btn-comprar {
-            background: #059669;
-            margin-top: 15px;
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
         }
-        .btn-comprar:hover { background: #047857; }
+        .cantidad-control button {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+        .cantidad-control input {
+            width: 60px;
+            text-align: center;
+            margin: 0;
+        }
+        
+        .btn-agregar {
+            background: #059669;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-agregar:hover { background: #047857; }
+        .btn-agregar:disabled {
+            background: #334155;
+        }
+        
+        .etiqueta-agotado {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
         
         .carrito {
             background: #1e293b;
             padding: 20px;
             border-radius: 10px;
             margin-top: 30px;
+            border: 1px solid #334155;
         }
         
         .carrito-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            align-items: center;
+            padding: 12px 0;
             border-bottom: 1px solid #334155;
         }
+        .carrito-item-info h4 {
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+        .carrito-item-info p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .btn-eliminar {
+            background: #dc2626;
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .carrito-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .carrito-total .monto {
+            font-size: 32px;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .btn-comprar {
+            background: #7c3aed;
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+        .btn-comprar:hover { background: #6d28d9; }
         
         .error { color: #ef4444; margin-top: 10px; }
+        .success { color: #10b981; margin-top: 10px; }
+        .info { color: #94a3b8; font-size: 14px; margin-top: 5px; }
+        
+        #mensajeGlobal {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        .msg-ok { background: #065f46; color: #6ee7b7; }
+        .msg-error { background: #7f1d1d; color: #fca5a5; }
+        .msg-info { background: #1e40af; color: #93c5fd; }
         
         .vendedor-tools {
             background: #1e3a5f;
@@ -131,10 +237,20 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+        
+        .sync-status {
+            text-align: right;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
+    <div id="mensajeGlobal"></div>
+
+    <!-- LOGIN -->
     <div id="loginBox">
         <h2>🛒 Tienda Virtual</h2>
         <p style="margin-bottom:20px; font-size:14px; color:#94a3b8;">Accede con tus credenciales de Atlantis Pacific</p>
@@ -142,68 +258,65 @@
         <input type="text" id="usuario" placeholder="Usuario" autocomplete="username">
         <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
         
-        <button onclick="entrar()">Entrar a la Tienda</button>
-        <p id="mensaje"></p>
+        <button onclick="entrar()" style="width:100%; margin-top:10px;">Entrar a la Tienda</button>
+        <p id="mensajeLogin"></p>
     </div>
 
+    <!-- APP -->
     <div id="appPanel">
         <div class="header">
             <div>
                 <h1>🛍️ Tienda Atlantis Pacific</h1>
-                <p>Catálogo de productos</p>
+                <p class="info">Catálogo de productos en tiempo real</p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <span class="userBadge">👤 <span id="nombreUser"></span></span>
-                <button onclick="salir()" style="width:auto; padding:8px 16px; background:#334155;">Salir</button>
+                <button onclick="salir()" style="background:#334155;">Salir</button>
             </div>
         </div>
         
         <div id="vendedorPanel" class="vendedor-tools" style="display:none;">
-            <strong>🔧 Herramientas de Vendedor</strong>
-            <p style="font-size:14px; margin-top:5px;">Tienes acceso a gestión de precios y stock</p>
+            <strong>🔧 Modo Vendedor</strong>
+            <p style="font-size:14px; margin-top:5px;">Puedes procesar ventas y ver stock en tiempo real</p>
         </div>
         
-        <h2>Productos Disponibles</h2>
+        <div class="sync-status" id="syncStatus">Sincronizado con inventario</div>
+        
+        <h2>📦 Productos Disponibles</h2>
         <div class="productos-grid" id="listaProductos">
-            <div class="producto">
-                <h3>Laptop Gamer</h3>
-                <p class="precio">$1,200</p>
-                <p class="stock">📦 15 unidades disponibles</p>
-                <button class="btn-comprar" onclick="agregarCarrito('Laptop Gamer', 1200)">Agregar al carrito</button>
-            </div>
-            <div class="producto">
-                <h3>Mouse Inalámbrico</h3>
-                <p class="precio">$25</p>
-                <p class="stock">📦 50 unidades disponibles</p>
-                <button class="btn-comprar" onclick="agregarCarrito('Mouse Inalámbrico', 25)">Agregar al carrito</button>
-            </div>
-            <div class="producto">
-                <h3>Teclado Mecánico</h3>
-                <p class="precio">$80</p>
-                <p class="stock">📦 30 unidades disponibles</p>
-                <button class="btn-comprar" onclick="agregarCarrito('Teclado Mecánico', 80)">Agregar al carrito</button>
-            </div>
+            <p style="color:#64748b;">Cargando productos...</p>
         </div>
         
         <div class="carrito">
-            <h2>🛒 Carrito</h2>
+            <h2>🛒 Tu Carrito</h2>
             <div id="carritoItems">
                 <p style="color:#64748b;">Tu carrito está vacío</p>
             </div>
-            <div id="carritoTotal" style="margin-top:15px; font-size:20px; color:#38bdf8;"></div>
+            <div class="carrito-total" style="display:none;" id="carritoFooter">
+                <div>
+                    <p class="info">Total a pagar:</p>
+                    <p class="monto" id="carritoTotal">$0</p>
+                </div>
+                <button class="btn-comprar" onclick="procesarCompra()">
+                    💳 Finalizar Compra
+                </button>
+            </div>
         </div>
     </div>
 
     <script src="auth.js"></script>
     <script>
         const WEB_ID = 'tienda';
+        let productos = [];
         let carrito = [];
         let usuarioActual = null;
+        let passwordActual = null;
+        let esAdmin = false;
         
         async function entrar() {
-            const usuario = document.getElementById('usuario').value;
+            const usuario = document.getElementById('usuario').value.trim();
             const password = document.getElementById('password').value;
-            const mensaje = document.getElementById('mensaje');
+            const mensaje = document.getElementById('mensajeLogin');
             
             mensaje.textContent = '';
             
@@ -216,7 +329,18 @@
             const res = await AUTH.login(usuario, password, WEB_ID);
             
             if (res.ok) {
-                usuarioActual = res.usuario;
+                usuarioActual = usuario;
+                passwordActual = password;
+                esAdmin = res.usuario.esAdmin;
+                
+                localStorage.setItem('tienda_usuario', usuario);
+                localStorage.setItem('tienda_password', password);
+                
+                if (esAdmin) {
+                    const adminToken = localStorage.getItem('admin_token');
+                    if (adminToken) AUTH.TOKEN = adminToken;
+                }
+                
                 mostrarApp(res.usuario);
             } else {
                 mensaje.className = 'error';
@@ -229,7 +353,6 @@
             document.getElementById('appPanel').style.display = 'block';
             document.getElementById('nombreUser').textContent = usuario.usuario;
             
-            // Si es admin, mostrar herramientas de vendedor
             if (usuario.esAdmin) {
                 document.getElementById('vendedorPanel').style.display = 'block';
             }
@@ -237,23 +360,114 @@
             cargarProductos();
         }
         
-        function cargarProductos() {
-            // Aquí puedes cargar desde datos.json si tienes productos allí
-            // Por ahora usamos los de ejemplo en HTML
+        async function cargarProductos() {
+            mostrarGlobal('Cargando productos...', 'info');
+            
+            const data = await AUTH.cargarProductosCloud();
+            productos = data.productos || [];
+            
+            mostrarProductos();
+            mostrarGlobal('Productos actualizados', 'ok');
         }
         
-        function agregarCarrito(nombre, precio) {
-            carrito.push({ nombre, precio });
+        function mostrarProductos() {
+            const div = document.getElementById('listaProductos');
+            
+            if (productos.length === 0) {
+                div.innerHTML = '<p style="color:#64748b; grid-column:1/-1; text-align:center;">No hay productos disponibles en este momento.</p>';
+                return;
+            }
+            
+            let html = '';
+            productos.forEach(p => {
+                const agotado = p.stock <= 0;
+                const stockBajo = p.stock > 0 && p.stock <= 5;
+                
+                html += `
+                    <div class="producto ${agotado ? 'agotado' : ''}">
+                        ${agotado ? '<span class="etiqueta-agotado">AGOTADO</span>' : ''}
+                        <h3>${p.nombre}</h3>
+                        <p class="precio">$${p.precio}</p>
+                        <p class="stock ${agotado ? 'agotado' : stockBajo ? 'bajo' : ''}">
+                            📦 ${agotado ? 'Sin stock' : stockBajo ? `¡Solo ${p.stock} unidades!` : `${p.stock} disponibles`}
+                        </p>
+                        <p style="color:#64748b; font-size:12px;">${p.categoria}</p>
+                        
+                        ${!agotado ? `
+                            <div class="cantidad-control">
+                                <button onclick="ajustarCantidad(${p.id}, -1)">−</button>
+                                <input type="number" id="cant-${p.id}" value="1" min="1" max="${p.stock}" readonly>
+                                <button onclick="ajustarCantidad(${p.id}, 1)">+</button>
+                            </div>
+                            <button class="btn-agregar" onclick="agregarCarrito(${p.id})">
+                                🛒 Agregar al carrito
+                            </button>
+                        ` : `
+                            <button class="btn-agregar" disabled>
+                                No disponible
+                            </button>
+                        `}
+                    </div>
+                `;
+            });
+            
+            div.innerHTML = html;
+        }
+        
+        function ajustarCantidad(productoId, cambio) {
+            const input = document.getElementById(`cant-${productoId}`);
+            const producto = productos.find(p => p.id === productoId);
+            let nuevaCantidad = parseInt(input.value) + cambio;
+            
+            if (nuevaCantidad < 1) nuevaCantidad = 1;
+            if (producto && nuevaCantidad > producto.stock) nuevaCantidad = producto.stock;
+            
+            input.value = nuevaCantidad;
+        }
+        
+        function agregarCarrito(productoId) {
+            const producto = productos.find(p => p.id === productoId);
+            if (!producto || producto.stock <= 0) return;
+            
+            const cantidadInput = document.getElementById(`cant-${productoId}`);
+            const cantidad = parseInt(cantidadInput.value);
+            
+            if (cantidad > producto.stock) {
+                mostrarGlobal(`Solo hay ${producto.stock} unidades disponibles`, 'error');
+                return;
+            }
+            
+            // Verificar si ya está en el carrito
+            const existente = carrito.find(item => item.id === productoId);
+            if (existente) {
+                const nuevaCantidad = existente.cantidad + cantidad;
+                if (nuevaCantidad > producto.stock) {
+                    mostrarGlobal(`No puedes agregar más de ${producto.stock} unidades`, 'error');
+                    return;
+                }
+                existente.cantidad = nuevaCantidad;
+            } else {
+                carrito.push({
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    cantidad: cantidad,
+                    stockDisponible: producto.stock
+                });
+            }
+            
             mostrarCarrito();
+            mostrarGlobal(`${producto.nombre} agregado al carrito`, 'ok');
         }
         
         function mostrarCarrito() {
             const div = document.getElementById('carritoItems');
+            const footer = document.getElementById('carritoFooter');
             const totalDiv = document.getElementById('carritoTotal');
             
             if (carrito.length === 0) {
                 div.innerHTML = '<p style="color:#64748b;">Tu carrito está vacío</p>';
-                totalDiv.textContent = '';
+                footer.style.display = 'none';
                 return;
             }
             
@@ -261,37 +475,129 @@
             let total = 0;
             
             carrito.forEach((item, index) => {
-                total += item.precio;
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                
                 html += `
                     <div class="carrito-item">
-                        <span>${item.nombre}</span>
-                        <span>$${item.precio}</span>
+                        <div class="carrito-item-info">
+                            <h4>${item.nombre}</h4>
+                            <p>$${item.precio} x ${item.cantidad} = $${subtotal}</p>
+                        </div>
+                        <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})">
+                            🗑️
+                        </button>
                     </div>
                 `;
             });
             
             div.innerHTML = html;
-            totalDiv.textContent = `Total: $${total}`;
+            totalDiv.textContent = `$${total}`;
+            footer.style.display = 'flex';
+        }
+        
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            mostrarCarrito();
+        }
+        
+        async function procesarCompra() {
+            if (carrito.length === 0) return;
+            
+            if (!confirm(`¿Confirmar compra por $${calcularTotal()}?`)) return;
+            
+            mostrarGlobal('Procesando compra...', 'info');
+            
+            // Verificar stock nuevamente
+            const dataActual = await AUTH.cargarProductosCloud();
+            const productosActual = dataActual.productos || [];
+            
+            for (let item of carrito) {
+                const prodActual = productosActual.find(p => p.id === item.id);
+                if (!prodActual || prodActual.stock < item.cantidad) {
+                    mostrarGlobal(`Lo sentimos, "${item.nombre}" ya no tiene stock suficiente`, 'error');
+                    await cargarProductos(); // Recargar para ver cambios
+                    return;
+                }
+            }
+            
+            // Descontar del inventario
+            for (let item of carrito) {
+                const prodIndex = productos.findIndex(p => p.id === item.id);
+                if (prodIndex !== -1) {
+                    productos[prodIndex].stock -= item.cantidad;
+                }
+            }
+            
+            // Guardar en Cloudflare (usando credenciales de tienda o admin)
+            let res;
+            if (esAdmin && AUTH.TOKEN) {
+                res = await AUTH.guardarEnGitHub('productos.json', { productos }, 
+                    `Venta: ${carrito.length} items por ${usuarioActual}`);
+            } else {
+                res = await AUTH.guardarProductosCloud(usuarioActual, passwordActual, { productos });
+            }
+            
+            if (res.ok) {
+                mostrarGlobal('✅ ¡Compra exitosa! Inventario actualizado.', 'ok');
+                carrito = [];
+                mostrarCarrito();
+                await cargarProductos(); // Recargar para mostrar nuevos stocks
+            } else {
+                mostrarGlobal('❌ Error: ' + (res.error || 'No se pudo completar'), 'error');
+                await cargarProductos(); // Recargar para restaurar datos
+            }
+        }
+        
+        function calcularTotal() {
+            return carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        }
+        
+        function mostrarGlobal(texto, tipo) {
+            const div = document.getElementById('mensajeGlobal');
+            div.textContent = texto;
+            div.className = tipo === 'ok' ? 'msg-ok' : tipo === 'error' ? 'msg-error' : 'msg-info';
+            div.style.display = 'block';
+            
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 3000);
         }
         
         function salir() {
             AUTH.logout(WEB_ID);
+            usuarioActual = null;
+            passwordActual = null;
+            esAdmin = false;
             carrito = [];
+            productos = [];
             location.reload();
         }
         
-        window.onload = function() {
+        // Auto-login
+        window.onload = async function() {
             const sesion = AUTH.verificarSesion(WEB_ID);
-            if (sesion) {
-                AUTH.cargarDB().then(db => {
-                    const user = db.usuarios.find(u => u.usuario === sesion.usuario);
-                    if (user && user.websAutorizadas.includes(WEB_ID)) {
-                        usuarioActual = user;
-                        mostrarApp(user);
-                    } else {
-                        AUTH.logout(WEB_ID);
+            const savedUser = localStorage.getItem('tienda_usuario');
+            const savedPass = localStorage.getItem('tienda_password');
+            
+            if (sesion && savedUser && savedPass) {
+                const db = await AUTH.cargarDB();
+                const user = db.usuarios.find(u => u.usuario === savedUser);
+                
+                if (user && user.websAutorizadas.includes(WEB_ID) && user.passwordHash === savedPass) {
+                    usuarioActual = savedUser;
+                    passwordActual = savedPass;
+                    esAdmin = user.esAdmin;
+                    
+                    if (esAdmin) {
+                        const adminToken = localStorage.getItem('admin_token');
+                        if (adminToken) AUTH.TOKEN = adminToken;
                     }
-                });
+                    
+                    mostrarApp(user);
+                } else {
+                    AUTH.logout(WEB_ID);
+                }
             }
         };
     </script>
