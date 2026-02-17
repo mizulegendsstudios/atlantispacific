@@ -2,7 +2,7 @@ const AUTH = {
     // URLs
     DB_URL: 'https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/datos.json',
     SOLICITUDES_URL: 'https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/solicitudes.json',
-    CLOUDFLARE_URL: 'https://atlantis-pacific-api.mizulegendsstudios.workers.dev/', // REEMPLAZA CON TU URL
+    CLOUDFLARE_URL: 'https://atlantis-pacific-api.mizulegendsstudios.workers.dev/', 
     
     // Token para admin (GitHub directo)
     TOKEN: localStorage.getItem('admin_token') || '',
