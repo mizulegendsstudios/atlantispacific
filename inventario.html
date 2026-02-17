@@ -8,14 +8,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: system-ui, sans-serif; 
-            max-width: 900px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px;
             background: #0f172a;
             color: #e2e8f0;
         }
-        h1 { color: #38bdf8; margin-bottom: 10px; }
-        p { color: #94a3b8; }
         
         #loginBox {
             max-width: 400px;
@@ -26,7 +24,7 @@
             border: 1px solid #334155;
         }
         
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
@@ -38,15 +36,13 @@
         }
         
         button {
-            width: 100%;
-            padding: 12px;
+            padding: 12px 24px;
             background: #0ea5e9;
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
         }
         button:hover { background: #0284c7; }
         
@@ -59,6 +55,8 @@
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .userBadge {
@@ -68,70 +66,222 @@
             font-size: 14px;
         }
         
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+        .adminBadge {
+            background: #d97706;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
         }
         
-        .item {
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        h2 { color: #7dd3fc; margin: 30px 0 15px; }
+        
+        .form-nuevo {
             background: #1e293b;
             padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
         }
-        .item h3 { color: #38bdf8; margin-bottom: 10px; }
-        .item p { color: #94a3b8; margin: 5px 0; }
+        
+        .form-nuevo input, .form-nuevo select {
+            margin: 0;
+        }
+        
+        .btn-guardar {
+            background: #059669;
+            height: 42px;
+        }
+        .btn-guardar:hover { background: #047857; }
+        
+        .btn-cloud {
+            background: #7c3aed;
+        }
+        .btn-cloud:hover { background: #6d28d9; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        
+        th {
+            background: #0f172a;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #252f47;
+        }
+        
+        .acciones button {
+            padding: 6px 12px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        
+        .btn-editar { background: #d97706; }
+        .btn-borrar { background: #dc2626; }
+        .btn-guardar-cambios { background: #059669; }
+        
+        .editable {
+            background: #0f172a;
+            border: 1px solid #0ea5e9;
+            padding: 8px;
+            border-radius: 4px;
+            color: white;
+            width: 100%;
+        }
         
         .error { color: #ef4444; margin-top: 10px; }
         .success { color: #10b981; margin-top: 10px; }
+        .info { color: #94a3b8; font-size: 14px; margin-top: 5px; }
+        .warning { color: #f59e0b; font-size: 14px; }
+        
+        #mensajeGlobal {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        .msg-ok { background: #065f46; color: #6ee7b7; }
+        .msg-error { background: #7f1d1d; color: #fca5a5; }
+        .msg-info { background: #1e40af; color: #93c5fd; }
+        
+        .modo-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .modo-admin { background: #d97706; color: white; }
+        .modo-cloud { background: #7c3aed; color: white; }
+        
+        .sync-status {
+            text-align: right;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
+    <div id="mensajeGlobal"></div>
+
     <!-- LOGIN -->
     <div id="loginBox">
         <h2>🔐 Acceso a Inventario</h2>
-        <p style="margin-bottom:20px; font-size:14px;">Ingresa tus credenciales de Atlantis Pacific</p>
+        <p style="margin-bottom:20px; font-size:14px; color:#94a3b8;">Sistema de gestión de stock</p>
         
         <input type="text" id="usuario" placeholder="Usuario" autocomplete="username">
         <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
         
-        <button onclick="entrar()">Entrar al Sistema</button>
-        <p id="mensaje"></p>
+        <button onclick="entrar()" style="width:100%; margin-top:10px;">Entrar al Sistema</button>
+        <p id="mensajeLogin"></p>
     </div>
 
-    <!-- APP PROTEGIDA -->
+    <!-- APP -->
     <div id="appPanel">
         <div class="header">
             <div>
-                <h1>📋 Sistema de Inventario</h1>
-                <p>Bienvenido al panel de control</p>
+                <h1>
+                    📋 Sistema de Inventario
+                    <span id="modoIndicator" class="modo-badge modo-cloud">Cloud</span>
+                </h1>
+                <p class="info">Usuario: <span id="nombreUser"></span></p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <span class="userBadge">👤 <span id="nombreUser"></span></span>
-                <button onclick="salir()" style="width:auto; padding:8px 16px; background:#334155;">Salir</button>
+                <span id="tipoUser" class="userBadge"></span>
+                <button onclick="salir()" style="background:#334155;">Salir</button>
             </div>
         </div>
         
-        <div class="grid" id="contenidoInventario">
-            <!-- Aquí va tu contenido real de inventario -->
-            <div class="item">
-                <h3>Producto Ejemplo</h3>
-                <p>Cantidad: 50 unidades</p>
-                <p>Ubicación: Almacén A</p>
+        <!-- FORMULARIO NUEVO PRODUCTO -->
+        <h2>➕ Agregar Nuevo Producto</h2>
+        <div class="form-nuevo">
+            <div>
+                <label style="display:block; color:#94a3b8; font-size:14px; margin-bottom:5px;">Nombre</label>
+                <input type="text" id="nuevoNombre" placeholder="Ej: Laptop Dell">
             </div>
+            <div>
+                <label style="display:block; color:#94a3b8; font-size:14px; margin-bottom:5px;">Precio ($)</label>
+                <input type="number" id="nuevoPrecio" placeholder="0" min="0" step="0.01">
+            </div>
+            <div>
+                <label style="display:block; color:#94a3b8; font-size:14px; margin-bottom:5px;">Stock</label>
+                <input type="number" id="nuevoStock" placeholder="0" min="0">
+            </div>
+            <div>
+                <label style="display:block; color:#94a3b8; font-size:14px; margin-bottom:5px;">Categoría</label>
+                <select id="nuevoCategoria">
+                    <option value="electrónica">Electrónica</option>
+                    <option value="accesorios">Accesorios</option>
+                    <option value="software">Software</option>
+                    <option value="otros">Otros</option>
+                </select>
+            </div>
+            <button class="btn-guardar" onclick="agregarProducto()">💾 Guardar</button>
         </div>
+        <p id="msgNuevo" class="info"></p>
+
+        <!-- TABLA DE PRODUCTOS -->
+        <div class="sync-status" id="syncStatus">Sincronizado con Cloudflare</div>
+        
+        <h2>📦 Productos en Inventario</h2>
+        <div id="tablaContainer">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="listaProductos">
+                    <tr><td colspan="6" style="text-align:center; color:#64748b;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <p id="msgTabla" class="info" style="margin-top:15px;"></p>
     </div>
 
     <script src="auth.js"></script>
     <script>
-        const WEB_ID = 'inventario'; // Debe coincidir con datos.json
+        const WEB_ID = 'inventario';
+        let productos = [];
+        let editandoId = null;
+        let usuarioActual = null;
+        let passwordActual = null;
+        let esAdmin = false;
         
         async function entrar() {
-            const usuario = document.getElementById('usuario').value;
+            const usuario = document.getElementById('usuario').value.trim();
             const password = document.getElementById('password').value;
-            const mensaje = document.getElementById('mensaje');
+            const mensaje = document.getElementById('mensajeLogin');
             
             mensaje.textContent = '';
             
@@ -144,6 +294,20 @@
             const res = await AUTH.login(usuario, password, WEB_ID);
             
             if (res.ok) {
+                usuarioActual = usuario;
+                passwordActual = password;
+                esAdmin = res.usuario.esAdmin;
+                
+                // Guardar para Cloudflare
+                localStorage.setItem('inv_usuario', usuario);
+                localStorage.setItem('inv_password', password);
+                
+                // Si es admin, también guardar token si existe
+                const adminToken = localStorage.getItem('admin_token');
+                if (esAdmin && adminToken) {
+                    AUTH.TOKEN = adminToken;
+                }
+                
                 mostrarApp(res.usuario);
             } else {
                 mensaje.className = 'error';
@@ -156,34 +320,249 @@
             document.getElementById('appPanel').style.display = 'block';
             document.getElementById('nombreUser').textContent = usuario.usuario;
             
-            // Aquí cargas tu inventario real
-            cargarInventario();
+            // Mostrar tipo de usuario
+            const tipoBadge = document.getElementById('tipoUser');
+            if (usuario.esAdmin) {
+                tipoBadge.innerHTML = '👑 Admin';
+                document.getElementById('modoIndicator').className = 'modo-badge modo-admin';
+                document.getElementById('modoIndicator').textContent = 'GitHub Directo';
+                document.getElementById('syncStatus').textContent = 'Modo Admin: Guardado directo a GitHub';
+            } else {
+                tipoBadge.innerHTML = '👤 Usuario';
+                document.getElementById('modoIndicator').className = 'modo-badge modo-cloud';
+                document.getElementById('modoIndicator').textContent = 'Cloud';
+                document.getElementById('syncStatus').textContent = 'Modo Cloud: Sincronizado via Cloudflare';
+            }
+            
+            cargarProductos();
         }
         
-        function cargarInventario() {
-            // Ejemplo: carga desde datos.json otra sección
-            // const div = document.getElementById('contenidoInventario');
-            // div.innerHTML = '...';
+        async function cargarProductos() {
+            mostrarGlobal('Cargando productos...', 'info');
+            
+            // Todos cargan desde Cloudflare (más rápido y unificado)
+            const data = await AUTH.cargarProductosCloud();
+            productos = data.productos || [];
+            
+            mostrarTabla();
+            mostrarGlobal('Productos cargados', 'ok');
+        }
+        
+        function mostrarTabla() {
+            const tbody = document.getElementById('listaProductos');
+            
+            if (productos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#64748b;">No hay productos. Agrega el primero arriba.</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            productos.forEach(p => {
+                if (editandoId === p.id) {
+                    html += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td><input type="text" id="edit-nombre-${p.id}" value="${p.nombre}" class="editable"></td>
+                            <td><input type="number" id="edit-precio-${p.id}" value="${p.precio}" class="editable" step="0.01"></td>
+                            <td><input type="number" id="edit-stock-${p.id}" value="${p.stock}" class="editable"></td>
+                            <td>
+                                <select id="edit-cat-${p.id}" class="editable">
+                                    <option ${p.categoria === 'electrónica' ? 'selected' : ''}>electrónica</option>
+                                    <option ${p.categoria === 'accesorios' ? 'selected' : ''}>accesorios</option>
+                                    <option ${p.categoria === 'software' ? 'selected' : ''}>software</option>
+                                    <option ${p.categoria === 'otros' ? 'selected' : ''}>otros</option>
+                                </select>
+                            </td>
+                            <td class="acciones">
+                                <button class="btn-guardar-cambios" onclick="guardarEdicion(${p.id})">✓</button>
+                                <button class="btn-borrar" onclick="cancelarEdicion()">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    html += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>${p.nombre}</td>
+                            <td>$${p.precio}</td>
+                            <td>${p.stock} uds</td>
+                            <td>${p.categoria}</td>
+                            <td class="acciones">
+                                <button class="btn-editar" onclick="editarProducto(${p.id})">✏️ Editar</button>
+                                <button class="btn-borrar" onclick="borrarProducto(${p.id})">🗑️ Borrar</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        async function agregarProducto() {
+            const nombre = document.getElementById('nuevoNombre').value.trim();
+            const precio = parseFloat(document.getElementById('nuevoPrecio').value);
+            const stock = parseInt(document.getElementById('nuevoStock').value);
+            const categoria = document.getElementById('nuevoCategoria').value;
+            const msg = document.getElementById('msgNuevo');
+            
+            msg.textContent = '';
+            
+            if (!nombre || isNaN(precio) || isNaN(stock)) {
+                msg.className = 'error';
+                msg.textContent = '❌ Completa todos los campos correctamente';
+                return;
+            }
+            
+            const nuevo = {
+                id: Date.now(),
+                nombre,
+                precio,
+                stock,
+                categoria
+            };
+            
+            productos.push(nuevo);
+            
+            msg.className = 'info';
+            msg.textContent = '⏳ Guardando...';
+            
+            // Guardar según modo
+            let res;
+            if (esAdmin && AUTH.TOKEN) {
+                // Admin: directo a GitHub
+                res = await AUTH.guardarEnGitHub('productos.json', { productos }, `Add: ${nombre}`);
+            } else {
+                // Usuario: via Cloudflare
+                res = await AUTH.guardarProductosCloud(usuarioActual, passwordActual, { productos });
+            }
+            
+            if (res.ok) {
+                msg.className = 'success';
+                msg.textContent = esAdmin ? '✅ Guardado en GitHub' : '✅ Guardado via Cloudflare';
+                
+                document.getElementById('nuevoNombre').value = '';
+                document.getElementById('nuevoPrecio').value = '';
+                document.getElementById('nuevoStock').value = '';
+                
+                mostrarTabla();
+                mostrarGlobal('Producto agregado', 'ok');
+            } else {
+                msg.className = 'error';
+                msg.textContent = '❌ Error: ' + (res.error || 'No se pudo guardar');
+                productos.pop(); // Revertir
+            }
+        }
+        
+        function editarProducto(id) {
+            editandoId = id;
+            mostrarTabla();
+        }
+        
+        function cancelarEdicion() {
+            editandoId = null;
+            mostrarTabla();
+        }
+        
+        async function guardarEdicion(id) {
+            const nombre = document.getElementById(`edit-nombre-${id}`).value.trim();
+            const precio = parseFloat(document.getElementById(`edit-precio-${id}`).value);
+            const stock = parseInt(document.getElementById(`edit-stock-${id}`).value);
+            const categoria = document.getElementById(`edit-cat-${id}`).value;
+            
+            const index = productos.findIndex(p => p.id === id);
+            if (index === -1) return;
+            
+            const anterior = { ...productos[index] };
+            
+            productos[index] = { id, nombre, precio, stock, categoria };
+            
+            let res;
+            if (esAdmin && AUTH.TOKEN) {
+                res = await AUTH.guardarEnGitHub('productos.json', { productos }, `Update: ${nombre}`);
+            } else {
+                res = await AUTH.guardarProductosCloud(usuarioActual, passwordActual, { productos });
+            }
+            
+            if (res.ok) {
+                editandoId = null;
+                mostrarTabla();
+                mostrarGlobal('Cambios guardados', 'ok');
+            } else {
+                productos[index] = anterior;
+                mostrarGlobal('Error: ' + (res.error || 'No se pudo guardar'), 'error');
+            }
+        }
+        
+        async function borrarProducto(id) {
+            if (!confirm('¿Seguro que quieres borrar este producto?')) return;
+            
+            const anteriores = [...productos];
+            const producto = productos.find(p => p.id === id);
+            productos = productos.filter(p => p.id !== id);
+            
+            let res;
+            if (esAdmin && AUTH.TOKEN) {
+                res = await AUTH.guardarEnGitHub('productos.json', { productos }, `Delete: ${producto?.nombre || id}`);
+            } else {
+                res = await AUTH.guardarProductosCloud(usuarioActual, passwordActual, { productos });
+            }
+            
+            if (res.ok) {
+                mostrarTabla();
+                mostrarGlobal('Producto eliminado', 'ok');
+            } else {
+                productos = anteriores;
+                mostrarGlobal('Error al borrar: ' + (res.error || 'No se pudo guardar'), 'error');
+            }
+        }
+        
+        function mostrarGlobal(texto, tipo) {
+            const div = document.getElementById('mensajeGlobal');
+            div.textContent = texto;
+            div.className = tipo === 'ok' ? 'msg-ok' : tipo === 'error' ? 'msg-error' : 'msg-info';
+            div.style.display = 'block';
+            
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 3000);
         }
         
         function salir() {
             AUTH.logout(WEB_ID);
+            usuarioActual = null;
+            passwordActual = null;
+            esAdmin = false;
+            productos = [];
+            editandoId = null;
             location.reload();
         }
         
-        // Auto-login si hay sesión
-        window.onload = function() {
+        // Auto-login
+        window.onload = async function() {
             const sesion = AUTH.verificarSesion(WEB_ID);
-            if (sesion) {
-                // Verificar que sigue siendo válido
-                AUTH.cargarDB().then(db => {
-                    const user = db.usuarios.find(u => u.usuario === sesion.usuario);
-                    if (user && user.websAutorizadas.includes(WEB_ID)) {
-                        mostrarApp(user);
-                    } else {
-                        AUTH.logout(WEB_ID);
+            const savedUser = localStorage.getItem('inv_usuario');
+            const savedPass = localStorage.getItem('inv_password');
+            
+            if (sesion && savedUser && savedPass) {
+                // Verificar que sigue válido
+                const db = await AUTH.cargarDB();
+                const user = db.usuarios.find(u => u.usuario === savedUser);
+                
+                if (user && user.websAutorizadas.includes(WEB_ID) && user.passwordHash === savedPass) {
+                    usuarioActual = savedUser;
+                    passwordActual = savedPass;
+                    esAdmin = user.esAdmin;
+                    
+                    if (esAdmin) {
+                        const adminToken = localStorage.getItem('admin_token');
+                        if (adminToken) AUTH.TOKEN = adminToken;
                     }
-                });
+                    
+                    mostrarApp(user);
+                } else {
+                    AUTH.logout(WEB_ID);
+                }
             }
         };
     </script>
