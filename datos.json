@@ -1,0 +1,12 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "mizule",
+      "passwordHash": "tuClaveSecreta",
+      "websAutorizadas": ["admin", "tienda", "inventario", "blog"],
+      "fechaRegistro": "2024-01-01T00:00:00Z",
+      "esAdmin": true
+    }
+  ]
+}
