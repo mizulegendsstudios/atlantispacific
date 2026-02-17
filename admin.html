@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Atlantis Pacific</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #0a0f1a;
+            color: #e2e8f0;
+        }
+        h1 { color: #38bdf8; }
+        h2 { color: #7dd3fc; margin: 30px 0 15px 0; }
+        
+        /* Login */
+        #loginPanel {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        #loginPanel input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+        .tab {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.activa {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+        
+        /* Contenido */
+        .seccion { display: none; }
+        .seccion.activa { display: block; }
+        
+        /* Cards */
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .card.pendiente { border-left-color: #f59e0b; }
+        .card.aprobado { border-left-color: #10b981; }
+        .card.rechazado { border-left-color: #ef4444; }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card h3 { color: #38bdf8; }
+        .card small { color: #64748b; }
+        
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-aprobar { background: #059669; color: white; }
+        .btn-rechazar { background: #dc2626; color: white; }
+        .btn-copiar { background: #4b5563; color: white; }
+        
+        /* Formulario nuevo usuario */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-grid input, .form-grid select {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+        }
+        
+        /* Token config */
+        .config-box {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .config-box input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        
+        /* JSON output */
+        pre {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #334155;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginPanel">
+        <h1>🔐 Admin Access</h1>
+        <p style="color:#64748b; margin-bottom:20px;">Atlantis Pacific Control Center</p>
+        
+        <input type="text" id="adminUser" placeholder="Usuario admin">
+        <input type="password" id="adminPass" placeholder="Contraseña">
+        
+        <div class="config-box" style="margin-top:15px;">
+            <label style="color:#94a3b8; font-size:14px;">GitHub Token (para guardar cambios):</label>
+            <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+        
+        <button onclick="entrarAdmin()" style="width:100%; padding:12px; background:#0ea5e9; color:white; border:none; border-radius:6px; margin-top:10px; cursor:pointer;">
+            Entrar al Panel
+        </button>
+        
+        <p id="loginError" style="color:#ef4444; margin-top:10px;"></p>
+    </div>
+
+    <!-- PANEL ADMIN -->
+    <div id="adminPanel" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>🌊 Atlantis Pacific Admin</h1>
+            <button onclick="salirAdmin()" style="background:#334155; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer;">
+                Cerrar Sesión
+            </button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab activa" onclick="mostrarSeccion('solicitudes')">⏳ Solicitudes</button>
+            <button class="tab" onclick="mostrarSeccion('usuarios')">👥 Usuarios Activos</button>
+            <button class="tab" onclick="mostrarSeccion('nuevo')">➕ Crear Usuario</button>
+            <button class="tab" onclick="mostrarSeccion('json')">📄 Ver JSON</button>
+        </div>
+        
+        <!-- SECCIÓN SOLICITUDES -->
+        <div id="sec-solicitudes" class="seccion activa">
+            <h2>Solicitudes Pendientes</h2>
+            <div id="listaSolicitudes">
+                <p>Cargando...</p>
+            </div>
+        </div>
+        
+        <!-- SECCIÓN USUARIOS -->
+        <div id="sec-usuarios" class="seccion">
+            <h2>Usuarios Aprobados</h2>
+            <div id="listaUsuarios">
+                <p>Cargando...</p>
+            </div>
+        </div>
+        
+        <!-- SECCIÓN NUEVO USUARIO -->
+        <div id="sec-nuevo" class="seccion">
+            <h2>Crear Usuario Directo</h2>
+            <p style="color:#94a3b8; margin-bottom:15px;">Registra un usuario inmediatamente sin pasar por solicitud.</p>
+            
+            <div class="form-grid">
+                <input type="text" id="nuevoUsuario" placeholder="Nombre de usuario">
+                <input type="password" id="nuevoPassword" placeholder="Contraseña">
+                <select id="nuevoWeb" style="grid-column:1 / -1;">
+                    <option value="tienda">Tienda Virtual</option>
+                    <option value="inventario">Sistema de Inventario</option>
+                    <option value="blog">Blog Administrativo</option>
+                    <option value="admin">Panel Admin</option>
+                </select>
+            </div>
+            
+            <button onclick="crearUsuarioDirecto()" class="btn btn-aprobar" style="padding:12px 24px; font-size:16px;">
+                💾 Crear Usuario y Guardar en GitHub
+            </button>
+            
+            <div id="resultadoNuevo" style="margin-top:15px;"></div>
+        </div>
+        
+        <!-- SECCIÓN JSON -->
+        <div id="sec-json" class="seccion">
+            <h2>datos.json (Usuarios Aprobados)</h2>
+            <p style="color:#94a3b8; margin-bottom:10px;">Copia este contenido y pégalo en tu archivo datos.json en GitHub:</p>
+            <pre id="jsonUsuarios"></pre>
+            
+            <h2 style="margin-top:30px;">Solicitudes Pendientes (Local)</h2>
+            <pre id="jsonSolicitudes"></pre>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let datosActuales = { usuarios: [] };
+        let solicitudesLocales = [];
+        
+        // ========== LOGIN ==========
+        async function entrarAdmin() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            const token = document.getElementById('githubToken').value;
+            
+            // Guardar token para escritura
+            if (token) {
+                AUTH.TOKEN = token;
+                localStorage.setItem('admin_token', token);
+            }
+            
+            const res = await AUTH.login(user, pass, 'admin');
+            
+            if (res.ok && res.usuario.esAdmin) {
+                document.getElementById('loginPanel').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                cargarDatos();
+            } else {
+                document.getElementById('loginError').textContent = 
+                    res.ok ? 'No tienes permisos de admin' : 'Credenciales incorrectas';
+            }
+        }
+        
+        function salirAdmin() {
+            AUTH.logout('admin');
+            localStorage.removeItem('admin_token');
+            location.reload();
+        }
+        
+        // ========== CARGAR DATOS ==========
+        async function cargarDatos() {
+            datosActuales = await AUTH.cargarDB();
+            solicitudesLocales = AUTH.obtenerSolicitudesLocales();
+            
+            mostrarSolicitudes();
+            mostrarUsuarios();
+            mostrarJSON();
+        }
+        
+        // ========== MOSTRAR SOLICITUDES ==========
+        function mostrarSolicitudes() {
+            const div = document.getElementById('listaSolicitudes');
+            
+            if (solicitudesLocales.length === 0) {
+                div.innerHTML = '<p style="color:#64748b;">No hay solicitudes pendientes.</p>';
+                return;
+            }
+            
+            let html = '';
+            solicitudesLocales.forEach((sol, index) => {
+                html += `
+                    <div class="card pendiente">
+                        <div class="card-header">
+                            <h3>${sol.usuario}</h3>
+                            <small>${new Date(sol.fechaSolicitud).toLocaleString()}</small>
+                        </div>
+                        <p><strong>Web solicitada:</strong> ${sol.webSolicitada}</p>
+                        <p><strong>Email:</strong> ${sol.email || 'No proporcionado'}</p>
+                        <p><strong>ID:</strong> <code>${sol.id}</code></p>
+                        
+                        <div class="acciones">
+                            <button class="btn btn-aprobar" onclick="aprobarSolicitud(${index})">
+                                ✅ Aprobar
+                            </button>
+                            <button class="btn btn-rechazar" onclick="rechazarSolicitud(${index})">
+                                ❌ Rechazar
+                            </button>
+                            <button class="btn btn-copiar" onclick="copiarUsuario(${index})">
+                                📋 Copiar JSON
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            div.innerHTML = html;
+        }
+        
+        // ========== APROBAR ==========
+        async function aprobarSolicitud(index) {
+            const sol = solicitudesLocales[index];
+            
+            // Crear nuevo usuario
+            const nuevoUsuario = {
+                id: sol.id,
+                usuario: sol.usuario,
+                passwordHash: sol.passwordHash,
+                websAutorizadas: [sol.webSolicitada],
+                fechaRegistro: new Date().toISOString(),
+                esAdmin: false
+            };
+            
+            // Agregar a datos
+            datosActuales.usuarios.push(nuevoUsuario);
+            
+            // Guardar en GitHub
+            const res = await AUTH.guardarEnGitHub(
+                'datos.json', 
+                datosActuales, 
+                `Aprobar usuario: ${sol.usuario}`
+            );
+            
+            if (res.ok) {
+                // Quitar de solicitudes
+                solicitudesLocales.splice(index, 1);
+                localStorage.setItem('solicitudes_temp', JSON.stringify(solicitudesLocales));
+                
+                alert(`✅ Usuario ${sol.usuario} aprobado y guardado en GitHub`);
+                cargarDatos();
+            } else {
+                alert('❌ Error al guardar: ' + res.error);
+            }
+        }
+        
+        // ========== RECHAZAR ==========
+        function rechazarSolicitud(index) {
+            if (!confirm('¿Seguro que quieres rechazar esta solicitud?')) return;
+            
+            solicitudesLocales.splice(index, 1);
+            localStorage.setItem('solicitudes_temp', JSON.stringify(solicitudesLocales));
+            
+            mostrarSolicitudes();
+            mostrarJSON();
+        }
+        
+        // ========== COPIAR JSON ==========
+        function copiarUsuario(index) {
+            const sol = solicitudesLocales[index];
+            const usuarioJSON = {
+                id: sol.id,
+                usuario: sol.usuario,
+                passwordHash: sol.passwordHash,
+                websAutorizadas: [sol.webSolicitada],
+                esAdmin: false
+            };
+            
+            navigator.clipboard.writeText(JSON.stringify(usuarioJSON, null, 2));
+            alert('JSON copiado al portapapeles. Pégalo manualmente en datos.json');
+        }
+        
+        // ========== MOSTRAR USUARIOS ==========
+        function mostrarUsuarios() {
+            const div = document.getElementById('listaUsuarios');
+            const usuarios = datosActuales.usuarios || [];
+            
+            if (usuarios.length === 0) {
+                div.innerHTML = '<p style="color:#64748b;">No hay usuarios registrados.</p>';
+                return;
+            }
+            
+            let html = `<p style="margin-bottom:15px;">Total: ${usuarios.length} usuarios</p>`;
+            
+            usuarios.forEach(u => {
+                html += `
+                    <div class="card aprobado">
+                        <div class="card-header">
+                            <h3>${u.usuario} ${u.esAdmin ? '👑' : ''}</h3>
+                            <small>ID: ${u.id}</small>
+                        </div>
+                        <p><strong>Webs autorizadas:</strong> ${u.websAutorizadas.join(', ')}</p>
+                        <p><strong>Registro:</strong> ${new Date(u.fechaRegistro).toLocaleDateString()}</p>
+                    </div>
+                `;
+            });
+            
+            div.innerHTML = html;
+        }
+        
+        // ========== CREAR USUARIO DIRECTO ==========
+        async function crearUsuarioDirecto() {
+            const usuario = document.getElementById('nuevoUsuario').value.trim();
+            const password = document.getElementById('nuevoPassword').value;
+            const web = document.getElementById('nuevoWeb').value;
+            const resultado = document.getElementById('resultadoNuevo');
+            
+            if (!usuario || !password) {
+                resultado.innerHTML = '<p style="color:#ef4444;">Completa todos los campos</p>';
+                return;
+            }
+            
+            const nuevo = {
+                id: Date.now(),
+                usuario: usuario,
+                passwordHash: password,
+                websAutorizadas: [web],
+                fechaRegistro: new Date().toISOString(),
+                esAdmin: web === 'admin'
+            };
+            
+            datosActuales.usuarios.push(nuevo);
+            
+            const res = await AUTH.guardarEnGitHub(
+                'datos.json',
+                datosActuales,
+                `Crear usuario directo: ${usuario}`
+            );
+            
+            if (res.ok) {
+                resultado.innerHTML = `<p style="color:#10b981;">✅ Usuario ${usuario} creado y guardado en GitHub</p>`;
+                document.getElementById('nuevoUsuario').value = '';
+                document.getElementById('nuevoPassword').value = '';
+                cargarDatos();
+            } else {
+                resultado.innerHTML = `<p style="color:#ef4444;">❌ Error: ${res.error}</p>`;
+            }
+        }
+        
+        // ========== MOSTRAR JSON ==========
+        function mostrarJSON() {
+            document.getElementById('jsonUsuarios').textContent = 
+                JSON.stringify(datosActuales, null, 2);
+            document.getElementById('jsonSolicitudes').textContent = 
+                JSON.stringify(solicitudesLocales, null, 2);
+        }
+        
+        // ========== TABS ==========
+        function mostrarSeccion(id) {
+            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('activa'));
+            
+            document.getElementById('sec-' + id).classList.add('activa');
+            event.target.classList.add('activa');
+        }
+        
+        // Auto-login si hay sesión
+        if (AUTH.verificarSesion('admin')) {
+            const tokenGuardado = localStorage.getItem('admin_token');
+            if (tokenGuardado) AUTH.TOKEN = tokenGuardado;
+            
+            document.getElementById('loginPanel').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            cargarDatos();
+        }
+    </script>
+</body>
+</html>
