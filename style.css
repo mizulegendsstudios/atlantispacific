@@ -1,0 +1,26 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    font-family: system-ui, sans-serif; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 20px;
+    background: #0a1628;
+    color: #e0f2fe;
+}
+h1 { color: #38bdf8; margin-bottom: 20px; }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+button {
+    background: #0ea5e9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+button:hover { background: #0284c7; }
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
