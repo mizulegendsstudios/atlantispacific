@@ -1,8 +1,7 @@
 atlantispacific/
-├── index.html          (tu app vanilla)
-├── style.css           (tus estilos)
-├── app.js              (tu lógica frontend)
-├── db.json             (tu "base de datos" editable)
-└── .github/
-    └── workflows/
-        └── api.yml     (tu servidor backend gratuito)
+GitHub Repo
+├── datos.json          (usuarios aprobados - SOLO ADMIN edita)
+├── solicitudes.json    (pendientes de aprobación)
+├── auth.js             (librería compartida)
+├── admin.html          (tu panel de control)
+└── registro.html       (formulario público para solicitudes)
