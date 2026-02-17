@@ -143,4 +143,57 @@ const AUTH = {
             return { ok: false, error: err.message };
         }
     }
+        // ========== GUARDAR PRODUCTOS (para inventario) ==========
+    async guardarProductos(productos) {
+        if (!this.TOKEN) {
+            return { ok: false, error: 'No hay token configurado' };
+        }
+        
+        const url = `https://api.github.com/repos/mizulegendsstudios/atlantispacific/contents/productos.json`;
+        
+        // Obtener SHA si existe
+        let sha = null;
+        try {
+            const check = await fetch(url + '?ref=main', {
+                headers: { 'Authorization': `token ${this.TOKEN}` }
+            });
+            if (check.ok) {
+                const data = await check.json();
+                sha = data.sha;
+            }
+        } catch(e) {}
+        
+        const body = {
+            message: `Actualizar productos por ${this.sesion?.usuario || 'usuario'}`,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(productos, null, 2)))),
+            branch: 'main'
+        };
+        if (sha) body.sha = sha;
+        
+        const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${this.TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        
+        if (res.ok) {
+            return { ok: true };
+        } else {
+            const err = await res.json();
+            return { ok: false, error: err.message };
+        }
+    },
+    
+    async cargarProductos() {
+        try {
+            const res = await fetch(`https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/productos.json?t=${Date.now()}`);
+            if (res.status === 404) return { productos: [] };
+            return await res.json();
+        } catch (e) {
+            return { productos: [] };
+        }
+    }
 };
