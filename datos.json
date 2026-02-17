@@ -22,6 +22,16 @@
       ],
       "fechaRegistro": "2026-02-17T03:42:13.423Z",
       "esAdmin": false
+    },
+    {
+      "id": 1771299885170,
+      "usuario": "Randalwars",
+      "passwordHash": "321321",
+      "websAutorizadas": [
+        "tienda"
+      ],
+      "fechaRegistro": "2026-02-17T03:45:59.510Z",
+      "esAdmin": false
     }
   ]
 }
