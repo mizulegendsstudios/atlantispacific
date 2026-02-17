@@ -1,9 +1,10 @@
 const AUTH = {
-    // URLs de tus archivos en GitHub
+    // URLs
     DB_URL: 'https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/datos.json',
     SOLICITUDES_URL: 'https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/solicitudes.json',
+    CLOUDFLARE_URL: 'https://atlantis-pacific-api.tuusuario.workers.dev', // REEMPLAZA CON TU URL
     
-    // Token para escritura (SOLO en admin.html, no en registro.html)
+    // Token para admin (GitHub directo)
     TOKEN: localStorage.getItem('admin_token') || '',
     
     sesion: null,
@@ -48,24 +49,23 @@ const AUTH = {
     
     logout(webId) {
         localStorage.removeItem('auth_sesion_' + webId);
+        localStorage.removeItem('inv_usuario');
+        localStorage.removeItem('inv_password');
         this.sesion = null;
     },
     
-    // ========== SOLICITUDES (para registro.html) ==========
+    // ========== SOLICITUDES ==========
     async enviarSolicitud(usuario, password, webSolicitada, email = '') {
-        // Verificar que no exista en usuarios
         const db = await this.cargarDB();
         if (db.usuarios.find(u => u.usuario === usuario)) {
             return { ok: false, error: 'Usuario ya existe' };
         }
         
-        // Verificar que no haya solicitud pendiente
         const solicitudes = await this.cargarSolicitudes();
-        if (solicitudes.pendientes.find(s => s.usuario === usuario)) {
+        if (solicitudes.pendientes?.find(s => s.usuario === usuario)) {
             return { ok: false, error: 'Ya tienes una solicitud pendiente' };
         }
         
-        // Crear solicitud
         const nueva = {
             id: Date.now(),
             usuario: usuario,
@@ -76,7 +76,6 @@ const AUTH = {
             estado: 'pendiente'
         };
         
-        // Guardar en localStorage temporal (esperando aprobación)
         const pendientes = JSON.parse(localStorage.getItem('solicitudes_temp') || '[]');
         pendientes.push(nueva);
         localStorage.setItem('solicitudes_temp', JSON.stringify(pendientes));
@@ -88,7 +87,6 @@ const AUTH = {
         };
     },
     
-    // ========== ADMIN: Obtener solicitudes pendientes ==========
     obtenerSolicitudesLocales() {
         return JSON.parse(localStorage.getItem('solicitudes_temp') || '[]');
     },
@@ -97,7 +95,7 @@ const AUTH = {
         localStorage.removeItem('solicitudes_temp');
     },
     
-    // ========== ADMIN: Guardar en GitHub (requiere token) ==========
+    // ========== ADMIN: GitHub directo ==========
     async guardarEnGitHub(filename, contenido, mensajeCommit) {
         if (!this.TOKEN) {
             return { ok: false, error: 'No hay token de admin configurado' };
@@ -106,7 +104,6 @@ const AUTH = {
         const path = filename;
         const url = `https://api.github.com/repos/mizulegendsstudios/atlantispacific/contents/${path}`;
         
-        // Obtener SHA si existe
         let sha = null;
         try {
             const check = await fetch(url + '?ref=main', {
@@ -118,54 +115,9 @@ const AUTH = {
             }
         } catch(e) {}
         
-        // Preparar contenido
         const body = {
             message: mensajeCommit,
             content: btoa(unescape(encodeURIComponent(JSON.stringify(contenido, null, 2)))),
-            branch: 'main'
-        };
-        if (sha) body.sha = sha;
-        
-        // Enviar
-        const res = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${this.TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-        
-        if (res.ok) {
-            return { ok: true };
-        } else {
-            const err = await res.json();
-            return { ok: false, error: err.message };
-        }
-    }
-        // ========== GUARDAR PRODUCTOS (para inventario) ==========
-    async guardarProductos(productos) {
-        if (!this.TOKEN) {
-            return { ok: false, error: 'No hay token configurado' };
-        }
-        
-        const url = `https://api.github.com/repos/mizulegendsstudios/atlantispacific/contents/productos.json`;
-        
-        // Obtener SHA si existe
-        let sha = null;
-        try {
-            const check = await fetch(url + '?ref=main', {
-                headers: { 'Authorization': `token ${this.TOKEN}` }
-            });
-            if (check.ok) {
-                const data = await check.json();
-                sha = data.sha;
-            }
-        } catch(e) {}
-        
-        const body = {
-            message: `Actualizar productos por ${this.sesion?.usuario || 'usuario'}`,
-            content: btoa(unescape(encodeURIComponent(JSON.stringify(productos, null, 2)))),
             branch: 'main'
         };
         if (sha) body.sha = sha;
@@ -187,13 +139,32 @@ const AUTH = {
         }
     },
     
-    async cargarProductos() {
-        try {
-            const res = await fetch(`https://raw.githubusercontent.com/mizulegendsstudios/atlantispacific/main/productos.json?t=${Date.now()}`);
-            if (res.status === 404) return { productos: [] };
+    // ========== CLOUDFLARE API (usuarios normales) ==========
+    async cargarProductosCloud() {
+        const res = await fetch(`${this.CLOUDFLARE_URL}/productos?t=${Date.now()}`);
+        if (res.ok) {
             return await res.json();
-        } catch (e) {
-            return { productos: [] };
+        }
+        return { productos: [] };
+    },
+    
+    async guardarProductosCloud(usuario, password, productos) {
+        const credentials = btoa(`${usuario}:${password}`);
+        
+        const res = await fetch(`${this.CLOUDFLARE_URL}/productos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${credentials}`
+            },
+            body: JSON.stringify(productos)
+        });
+        
+        if (res.ok) {
+            return { ok: true, data: await res.json() };
+        } else {
+            const err = await res.json();
+            return { ok: false, error: err.error || 'Error del servidor' };
         }
     }
 };
