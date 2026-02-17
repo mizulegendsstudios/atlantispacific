@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda - Atlantis Pacific</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        #loginBox {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #0284c7; }
+        
+        #appPanel { display: none; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .userBadge {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        h1 { color: #38bdf8; }
+        h2 { color: #7dd3fc; margin: 20px 0 15px; }
+        
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .producto {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            transition: transform 0.2s;
+        }
+        .producto:hover {
+            transform: translateY(-5px);
+            border-color: #0ea5e9;
+        }
+        
+        .producto h3 { 
+            color: #38bdf8; 
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .producto .precio { 
+            color: #10b981; 
+            font-size: 24px; 
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .producto .stock { 
+            color: #94a3b8; 
+            font-size: 14px;
+        }
+        
+        .btn-comprar {
+            background: #059669;
+            margin-top: 15px;
+        }
+        .btn-comprar:hover { background: #047857; }
+        
+        .carrito {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .carrito-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .error { color: #ef4444; margin-top: 10px; }
+        
+        .vendedor-tools {
+            background: #1e3a5f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginBox">
+        <h2>🛒 Tienda Virtual</h2>
+        <p style="margin-bottom:20px; font-size:14px; color:#94a3b8;">Accede con tus credenciales de Atlantis Pacific</p>
+        
+        <input type="text" id="usuario" placeholder="Usuario" autocomplete="username">
+        <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
+        
+        <button onclick="entrar()">Entrar a la Tienda</button>
+        <p id="mensaje"></p>
+    </div>
+
+    <div id="appPanel">
+        <div class="header">
+            <div>
+                <h1>🛍️ Tienda Atlantis Pacific</h1>
+                <p>Catálogo de productos</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span class="userBadge">👤 <span id="nombreUser"></span></span>
+                <button onclick="salir()" style="width:auto; padding:8px 16px; background:#334155;">Salir</button>
+            </div>
+        </div>
+        
+        <div id="vendedorPanel" class="vendedor-tools" style="display:none;">
+            <strong>🔧 Herramientas de Vendedor</strong>
+            <p style="font-size:14px; margin-top:5px;">Tienes acceso a gestión de precios y stock</p>
+        </div>
+        
+        <h2>Productos Disponibles</h2>
+        <div class="productos-grid" id="listaProductos">
+            <div class="producto">
+                <h3>Laptop Gamer</h3>
+                <p class="precio">$1,200</p>
+                <p class="stock">📦 15 unidades disponibles</p>
+                <button class="btn-comprar" onclick="agregarCarrito('Laptop Gamer', 1200)">Agregar al carrito</button>
+            </div>
+            <div class="producto">
+                <h3>Mouse Inalámbrico</h3>
+                <p class="precio">$25</p>
+                <p class="stock">📦 50 unidades disponibles</p>
+                <button class="btn-comprar" onclick="agregarCarrito('Mouse Inalámbrico', 25)">Agregar al carrito</button>
+            </div>
+            <div class="producto">
+                <h3>Teclado Mecánico</h3>
+                <p class="precio">$80</p>
+                <p class="stock">📦 30 unidades disponibles</p>
+                <button class="btn-comprar" onclick="agregarCarrito('Teclado Mecánico', 80)">Agregar al carrito</button>
+            </div>
+        </div>
+        
+        <div class="carrito">
+            <h2>🛒 Carrito</h2>
+            <div id="carritoItems">
+                <p style="color:#64748b;">Tu carrito está vacío</p>
+            </div>
+            <div id="carritoTotal" style="margin-top:15px; font-size:20px; color:#38bdf8;"></div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const WEB_ID = 'tienda';
+        let carrito = [];
+        let usuarioActual = null;
+        
+        async function entrar() {
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const mensaje = document.getElementById('mensaje');
+            
+            mensaje.textContent = '';
+            
+            if (!usuario || !password) {
+                mensaje.className = 'error';
+                mensaje.textContent = 'Completa todos los campos';
+                return;
+            }
+            
+            const res = await AUTH.login(usuario, password, WEB_ID);
+            
+            if (res.ok) {
+                usuarioActual = res.usuario;
+                mostrarApp(res.usuario);
+            } else {
+                mensaje.className = 'error';
+                mensaje.textContent = '❌ ' + res.error;
+            }
+        }
+        
+        function mostrarApp(usuario) {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('appPanel').style.display = 'block';
+            document.getElementById('nombreUser').textContent = usuario.usuario;
+            
+            // Si es admin, mostrar herramientas de vendedor
+            if (usuario.esAdmin) {
+                document.getElementById('vendedorPanel').style.display = 'block';
+            }
+            
+            cargarProductos();
+        }
+        
+        function cargarProductos() {
+            // Aquí puedes cargar desde datos.json si tienes productos allí
+            // Por ahora usamos los de ejemplo en HTML
+        }
+        
+        function agregarCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            mostrarCarrito();
+        }
+        
+        function mostrarCarrito() {
+            const div = document.getElementById('carritoItems');
+            const totalDiv = document.getElementById('carritoTotal');
+            
+            if (carrito.length === 0) {
+                div.innerHTML = '<p style="color:#64748b;">Tu carrito está vacío</p>';
+                totalDiv.textContent = '';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            carrito.forEach((item, index) => {
+                total += item.precio;
+                html += `
+                    <div class="carrito-item">
+                        <span>${item.nombre}</span>
+                        <span>$${item.precio}</span>
+                    </div>
+                `;
+            });
+            
+            div.innerHTML = html;
+            totalDiv.textContent = `Total: $${total}`;
+        }
+        
+        function salir() {
+            AUTH.logout(WEB_ID);
+            carrito = [];
+            location.reload();
+        }
+        
+        window.onload = function() {
+            const sesion = AUTH.verificarSesion(WEB_ID);
+            if (sesion) {
+                AUTH.cargarDB().then(db => {
+                    const user = db.usuarios.find(u => u.usuario === sesion.usuario);
+                    if (user && user.websAutorizadas.includes(WEB_ID)) {
+                        usuarioActual = user;
+                        mostrarApp(user);
+                    } else {
+                        AUTH.logout(WEB_ID);
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
