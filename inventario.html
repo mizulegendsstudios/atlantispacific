@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Atlantis Pacific</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        p { color: #94a3b8; }
+        
+        #loginBox {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #0284c7; }
+        
+        #appPanel { display: none; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .userBadge {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .item {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .item h3 { color: #38bdf8; margin-bottom: 10px; }
+        .item p { color: #94a3b8; margin: 5px 0; }
+        
+        .error { color: #ef4444; margin-top: 10px; }
+        .success { color: #10b981; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+        <h2>🔐 Acceso a Inventario</h2>
+        <p style="margin-bottom:20px; font-size:14px;">Ingresa tus credenciales de Atlantis Pacific</p>
+        
+        <input type="text" id="usuario" placeholder="Usuario" autocomplete="username">
+        <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
+        
+        <button onclick="entrar()">Entrar al Sistema</button>
+        <p id="mensaje"></p>
+    </div>
+
+    <!-- APP PROTEGIDA -->
+    <div id="appPanel">
+        <div class="header">
+            <div>
+                <h1>📋 Sistema de Inventario</h1>
+                <p>Bienvenido al panel de control</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span class="userBadge">👤 <span id="nombreUser"></span></span>
+                <button onclick="salir()" style="width:auto; padding:8px 16px; background:#334155;">Salir</button>
+            </div>
+        </div>
+        
+        <div class="grid" id="contenidoInventario">
+            <!-- Aquí va tu contenido real de inventario -->
+            <div class="item">
+                <h3>Producto Ejemplo</h3>
+                <p>Cantidad: 50 unidades</p>
+                <p>Ubicación: Almacén A</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const WEB_ID = 'inventario'; // Debe coincidir con datos.json
+        
+        async function entrar() {
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const mensaje = document.getElementById('mensaje');
+            
+            mensaje.textContent = '';
+            
+            if (!usuario || !password) {
+                mensaje.className = 'error';
+                mensaje.textContent = 'Completa todos los campos';
+                return;
+            }
+            
+            const res = await AUTH.login(usuario, password, WEB_ID);
+            
+            if (res.ok) {
+                mostrarApp(res.usuario);
+            } else {
+                mensaje.className = 'error';
+                mensaje.textContent = '❌ ' + res.error;
+            }
+        }
+        
+        function mostrarApp(usuario) {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('appPanel').style.display = 'block';
+            document.getElementById('nombreUser').textContent = usuario.usuario;
+            
+            // Aquí cargas tu inventario real
+            cargarInventario();
+        }
+        
+        function cargarInventario() {
+            // Ejemplo: carga desde datos.json otra sección
+            // const div = document.getElementById('contenidoInventario');
+            // div.innerHTML = '...';
+        }
+        
+        function salir() {
+            AUTH.logout(WEB_ID);
+            location.reload();
+        }
+        
+        // Auto-login si hay sesión
+        window.onload = function() {
+            const sesion = AUTH.verificarSesion(WEB_ID);
+            if (sesion) {
+                // Verificar que sigue siendo válido
+                AUTH.cargarDB().then(db => {
+                    const user = db.usuarios.find(u => u.usuario === sesion.usuario);
+                    if (user && user.websAutorizadas.includes(WEB_ID)) {
+                        mostrarApp(user);
+                    } else {
+                        AUTH.logout(WEB_ID);
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
