@@ -1,7 +1,3 @@
- Aquí está todo documentado:
-
----
-
 ## README.md
 
 ```markdown
@@ -11,7 +7,7 @@ Sistema de autenticación y gestión de inventario 100% GitHub, sin Firebase ni 
 
 ## Arquitectura
 
-```
+
 GitHub Repo
 ├── index.html          (página principal)
 ├── admin.html          (panel de administración)
