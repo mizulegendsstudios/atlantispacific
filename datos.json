@@ -14,13 +14,13 @@
       "esAdmin": true
     },
     {
-      "id": 1771299439751,
-      "usuario": "SuiRyu",
+      "id": 1771299733423,
+      "usuario": "Ryusui",
       "passwordHash": "321321",
       "websAutorizadas": [
         "inventario"
       ],
-      "fechaRegistro": "2026-02-17T03:37:19.751Z",
+      "fechaRegistro": "2026-02-17T03:42:13.423Z",
       "esAdmin": false
     }
   ]
