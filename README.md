@@ -168,16 +168,3 @@ ENTREGA:
 - Notas de seguridad y limitaciones
 ```
 
----
-
-## ¿Cloudflare Workers ahora?
-
-Para que SuiRyu pueda guardar productos **sin tener el token**, necesitamos un endpoint intermedio:
-
-```
-SuiRyu (navegador) → Cloudflare Worker → GitHub API → productos.json
-```
-
-El Worker tiene el token **secreto** (no visible en frontend), valida que el usuario tenga permiso, y guarda.
-
-**¿Te preparo el código del Worker?** Es gratis, 100k requests/día, y el código es tuyo.
