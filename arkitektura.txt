@@ -1,0 +1,8 @@
+GitHub Repo
+├── index.html      (tu app)
+├── style.css       (tus estilos)  
+├── app.js          (tu lógica)
+└── README.md       (instrucciones)
+
+Render.com (o similar)
+└── server.js       (tu backend + base de datos)
