@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Acceso - Atlantis Pacific</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 500px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        p { color: #94a3b8; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #7dd3fc; }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #0284c7; }
+        .exito { 
+            background: #065f46; 
+            color: #6ee7b7; 
+            padding: 15px; 
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .error { 
+            background: #7f1d1d; 
+            color: #fca5a5; 
+            padding: 15px; 
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .info {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌊 Atlantis Pacific</h1>
+    <p>Solicita acceso al sistema. El administrador revisará tu petición.</p>
+    
+    <form onsubmit="return false;">
+        <div class="form-group">
+            <label>Usuario deseado</label>
+            <input type="text" id="usuario" placeholder="tu_nombre" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Email (opcional, para contactarte)</label>
+            <input type="email" id="email" placeholder="tu@email.com">
+        </div>
+        
+        <div class="form-group">
+            <label>¿A qué web necesitas acceso?</label>
+            <select id="web">
+                <option value="tienda">Tienda Virtual</option>
+                <option value="inventario">Sistema de Inventario</option>
+                <option value="blog">Blog Administrativo</option>
+            </select>
+        </div>
+        
+        <button onclick="enviarSolicitud()">📨 Enviar Solicitud</button>
+    </form>
+    
+    <div id="resultado"></div>
+
+    <script src="auth.js"></script>
+    <script>
+        async function enviarSolicitud() {
+            const usuario = document.getElementById('usuario').value.trim();
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value.trim();
+            const web = document.getElementById('web').value;
+            const resultado = document.getElementById('resultado');
+            
+            if (!usuario || !password) {
+                resultado.className = 'error';
+                resultado.textContent = 'Usuario y contraseña son obligatorios';
+                return;
+            }
+            
+            const res = await AUTH.enviarSolicitud(usuario, password, web, email);
+            
+            if (res.ok) {
+                resultado.className = 'exito';
+                resultado.innerHTML = `
+                    <strong>✅ ${res.mensaje}</strong>
+                    <p>Tu ID de solicitud: <code>${res.datos.id}</code></p>
+                    <p>Guarda este ID para consultar el estado.</p>
+                `;
+                document.querySelector('form').reset();
+            } else {
+                resultado.className = 'error';
+                resultado.textContent = '❌ ' + res.error;
+            }
+        }
+    </script>
+</body>
+</html>
