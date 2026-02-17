@@ -4,9 +4,24 @@
       "id": 1,
       "usuario": "mizule",
       "passwordHash": "tuClaveSecreta",
-      "websAutorizadas": ["admin", "tienda", "inventario", "blog"],
+      "websAutorizadas": [
+        "admin",
+        "tienda",
+        "inventario",
+        "blog"
+      ],
       "fechaRegistro": "2024-01-01T00:00:00Z",
       "esAdmin": true
+    },
+    {
+      "id": 1771299439751,
+      "usuario": "SuiRyu",
+      "passwordHash": "321321",
+      "websAutorizadas": [
+        "inventario"
+      ],
+      "fechaRegistro": "2026-02-17T03:37:19.751Z",
+      "esAdmin": false
     }
   ]
 }
